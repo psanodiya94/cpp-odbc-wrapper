@@ -24,3 +24,31 @@ add_subdirectory(tests/src)
 
 # Add Test
 enable_testing()
+
+# Install the library
+install(TARGETS odbccpp
+    EXPORT odbccppTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+
+# Install the headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+    DESTINATION include/odbccpp
+    FILES_MATCHING PATTERN "*.h"
+)
+
+# Export the targets for use by other projects
+install(EXPORT odbccppTargets
+    FILE odbccppConfig.cmake
+    NAMESPACE odbccpp::
+    DESTINATION lib/cmake/odbccpp
+)
+
+# Ensure the include directory is added correctly
+target_include_directories(odbccpp PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/odbccpp>
+)

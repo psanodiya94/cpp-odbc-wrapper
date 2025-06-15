@@ -4,7 +4,7 @@ find_package(ODBC REQUIRED)
 # Find SQLite3 (optional, for creating test database)
 find_package(SQLite3 REQUIRED)
 
-# Find SPDLOGspdlog and fmt for logging
+# Find spdlog and fmt for logging
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 
@@ -14,12 +14,18 @@ add_library(odbccpp STATIC
     odbcwrapper.cpp
 )
 
+# Add coverage flags for GCC/Clang if enabled
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(odbccpp PRIVATE --coverage -fprofile-arcs -ftest-coverage)
     target_link_options(odbccpp PRIVATE --coverage)
 endif()
 
 # Specify include directories for the library
-target_include_directories(odbccpp PUBLIC ${CMAKE_SOURCE_DIR}/include/)
+target_include_directories(odbccpp PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/odbccpp>
+)
+
+# Link required libraries
 target_link_libraries(odbccpp PRIVATE ${ODBC_LIBRARIES} ${SQLite3_LIBRARIES})
 target_link_libraries(odbccpp PRIVATE spdlog::spdlog fmt::fmt)
