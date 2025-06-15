@@ -21,3 +21,6 @@ endforeach()
 # Add subdirectories
 add_subdirectory(src)
 add_subdirectory(tests/src)
+
+# Add Test
+enable_testing()

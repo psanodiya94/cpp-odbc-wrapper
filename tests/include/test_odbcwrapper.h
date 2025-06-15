@@ -33,6 +33,24 @@ namespace ps {
                 std::unique_ptr<MockOdbcInterface> t_mock = std::make_unique<MockOdbcInterface>();
                 wrapper = std::make_unique<OdbcWrapper>(std::move(t_mock));
                 mock = static_cast<MockOdbcInterface*>(wrapper->getOdbcInterface());
+
+                // Default behavior for SQLGetDiagRec
+                ON_CALL(*mock, SQLGetDiagRec(testing::_, testing::_, testing::_, testing::_, testing::_, testing::_, testing::_, testing::_))
+                    .WillByDefault([](SQLSMALLINT, SQLHANDLE, SQLSMALLINT, SQLWCHAR* state, SQLINTEGER* nativeError, SQLWCHAR* messageText, SQLSMALLINT bufferLength, SQLSMALLINT* textLength) {
+                        if (state) {
+                            std::wcsncpy(reinterpret_cast<wchar_t*>(state), L"HY000", 6); // Default SQL state
+                        }
+                        if (nativeError) {
+                            *nativeError = 12345; // Default error code
+                        }
+                        if (messageText && bufferLength > 0) {
+                            std::wcsncpy(reinterpret_cast<wchar_t*>(messageText), L"Default error message", bufferLength / sizeof(SQLWCHAR));
+                            if (textLength) {
+                                *textLength = std::wcslen(L"Default error message");
+                            }
+                        }
+                        return SQL_SUCCESS;
+                    });
             }
 
             void TearDown() override {

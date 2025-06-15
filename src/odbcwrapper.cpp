@@ -1,6 +1,6 @@
 #include <odbccpp/odbcexecutor.h>
 #include <odbccpp/odbcwrapper.h>
-#include <odbccpp/odbclogger.h>
+#include <odbclogger.h>
 
 #include <stdexcept>
 #include <codecvt> 
