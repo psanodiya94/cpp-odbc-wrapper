@@ -4,6 +4,13 @@
 
 namespace ps {
     namespace test {
+        /**
+         * @test Constructor_InitializesEnvironmentAndConnection
+         * @brief Tests that the constructor initializes the ODBC environment and connection handles correctly.
+         *
+         * This test verifies that the `initialize` method sets up the ODBC environment and connection handles
+         * without any errors and ensures that the wrapper is not connected initially.
+         */
         TEST_F(OdbcWrapperTest, Constructor_InitializesEnvironmentAndConnection) {
             OdbcLogger::logInfo("Entering Constructor_InitializesEnvironmentAndConnection");
             
@@ -22,6 +29,13 @@ namespace ps {
             OdbcLogger::logInfo("Exiting Constructor_InitializesEnvironmentAndConnection");
         }
 
+        /**
+         * @test Connect_SuccessfulConnection
+         * @brief Tests that the `connect` method successfully establishes a database connection.
+         *
+         * This test ensures that the `connect` method calls the appropriate ODBC functions
+         * and establishes a connection when valid credentials are provided.
+         */
         TEST_F(OdbcWrapperTest, Connect_SuccessfulConnection) {
             OdbcLogger::logInfo("Entering Connect_SuccessfulConnection");
 
@@ -39,6 +53,13 @@ namespace ps {
             OdbcLogger::logInfo("Exiting Connect_SuccessfulConnection");
         }
 
+        /**
+         * @test Connect_FailureHandlesError
+         * @brief Tests that the `connect` method handles connection failures gracefully.
+         *
+         * This test ensures that when the `SQLConnect` function fails, the `connect` method
+         * returns `false` and logs the appropriate error.
+         */
         TEST_F(OdbcWrapperTest, Connect_FailureHandlesError) {
             OdbcLogger::logInfo("Entering Connect_FailureHandlesError");
 
@@ -53,6 +74,13 @@ namespace ps {
             OdbcLogger::logInfo("Exiting Connect_FailureHandlesError");
         }
 
+        /**
+         * @test ExecuteQuery_SuccessfulExecution
+         * @brief Tests that the `executeQuery` method successfully executes a SQL query.
+         *
+         * This test ensures that the `executeQuery` method calls the appropriate ODBC functions
+         * and executes a query when the connection is active.
+         */
         TEST_F(OdbcWrapperTest, ExecuteQuery_SuccessfulExecution) {
             OdbcLogger::logInfo("Entering ExecuteQuery_SuccessfulExecution");
 
@@ -76,6 +104,13 @@ namespace ps {
             OdbcLogger::logInfo("Exiting ExecuteQuery_SuccessfulExecution");
         }
 
+        /**
+         * @test ExecuteQuery_FailsIfNotConnected
+         * @brief Tests that the `executeQuery` method fails if the connection is not active.
+         *
+         * This test ensures that the `executeQuery` method returns `false` when called
+         * without an active database connection.
+         */
         TEST_F(OdbcWrapperTest, ExecuteQuery_FailsIfNotConnected) {
             OdbcLogger::logInfo("Entering ExecuteQuery_FailsIfNotConnected");
 
@@ -85,6 +120,13 @@ namespace ps {
             OdbcLogger::logInfo("Exiting ExecuteQuery_FailsIfNotConnected");
         }
 
+        /**
+         * @test ExecuteQuery_FailureHandlesError
+         * @brief Tests that the `executeQuery` method handles query execution failures gracefully.
+         *
+         * This test ensures that when the `SQLExecDirect` function fails, the `executeQuery` method
+         * returns `false` and logs the appropriate error.
+         */
         TEST_F(OdbcWrapperTest, ExecuteQuery_FailureHandlesError) {
             OdbcLogger::logInfo("Entering ExecuteQuery_FailureHandlesError");
 

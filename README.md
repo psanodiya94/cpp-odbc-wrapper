@@ -13,6 +13,17 @@ Ensure you have the following installed on your system:
 - Git
 - ODBC driver and driver manager
 
+### Dependencies
+
+The project relies on the following libraries:
+
+- **ODBC**: For database connectivity.
+- **fmt**: A modern formatting library for C++.
+- **spdlog**: A fast logging library for C++.
+- **googletest**: Used for unit testing.
+
+Ensure these dependencies are available on your system or included in your build process.
+
 ### Installation
 
 To set up the project, follow these steps:

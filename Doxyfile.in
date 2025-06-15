@@ -1,0 +1,42 @@
+# Doxyfile.in - Template for generating Doxygen configuration file
+
+# Project name
+PROJECT_NAME           = "ODBCCPPProject"
+
+# Output directory for the generated documentation
+OUTPUT_DIRECTORY       = @CMAKE_SOURCE_DIR@/doc
+
+# Directories to scan for source files
+INPUT                  = @CMAKE_SOURCE_DIR@/include
+
+# Include subdirectories recursively
+RECURSIVE              = YES
+
+# File patterns to include
+FILE_PATTERNS          = *.h *.cpp
+
+# Exclude directories or files
+EXCLUDE                = @CMAKE_SOURCE_DIR@/tests
+
+# Generate HTML documentation
+GENERATE_HTML          = YES
+
+# Generate LaTeX documentation (set to NO if not needed)
+GENERATE_LATEX         = NO
+
+# Enable extraction of private members
+EXTRACT_PRIVATE        = YES
+
+# Enable class diagrams (requires Graphviz)
+HAVE_DOT               = YES
+DOT_GRAPH_MAX_NODES    = 50
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+DOT_IMAGE_FORMAT       = svg
+
+# Set the output language
+OUTPUT_LANGUAGE        = English
+
+# Enable warnings
+WARN_IF_UNDOCUMENTED   = YES
+WARN_NO_PARAMDOC       = YES
