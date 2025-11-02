@@ -1,42 +1,98 @@
 # Doxyfile.in - Template for generating Doxygen configuration file
 
-# Project name
-PROJECT_NAME           = "ODBCCPPProject"
+# Project information
+PROJECT_NAME           = "C++ ODBC Wrapper"
+PROJECT_NUMBER         = @PROJECT_VERSION@
+PROJECT_BRIEF          = "A flexible and extensible C++ wrapper for ODBC database connectivity"
+PROJECT_LOGO           =
 
 # Output directory for the generated documentation
-OUTPUT_DIRECTORY       = @CMAKE_SOURCE_DIR@/doc
+OUTPUT_DIRECTORY       = @CMAKE_SOURCE_DIR@/docs/doxygen
 
-# Directories to scan for source files
-INPUT                  = @CMAKE_SOURCE_DIR@/include
-
-# Include subdirectories recursively
+# Input configuration
+INPUT                  = @CMAKE_SOURCE_DIR@/include \
+                         @CMAKE_SOURCE_DIR@/src \
+                         @CMAKE_SOURCE_DIR@/README.md
+INPUT_ENCODING         = UTF-8
 RECURSIVE              = YES
+FILE_PATTERNS          = *.h *.hpp *.cpp *.md
+EXCLUDE                = @CMAKE_SOURCE_DIR@/tests \
+                         @CMAKE_SOURCE_DIR@/build
+EXCLUDE_PATTERNS       = */tests/* */build/*
 
-# File patterns to include
-FILE_PATTERNS          = *.h *.cpp
+# Source browsing
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
 
-# Exclude directories or files
-EXCLUDE                = @CMAKE_SOURCE_DIR@/tests
-
-# Generate HTML documentation
-GENERATE_HTML          = YES
-
-# Generate LaTeX documentation (set to NO if not needed)
-GENERATE_LATEX         = NO
-
-# Enable extraction of private members
+# Build related configuration
+EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_ANON_NSPACES   = YES
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = YES
 
-# Enable class diagrams (requires Graphviz)
+# Documentation generation options
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_COLORSTYLE_HUE    = 220
+HTML_COLORSTYLE_SAT    = 100
+HTML_COLORSTYLE_GAMMA  = 80
+HTML_TIMESTAMP         = YES
+HTML_DYNAMIC_SECTIONS  = YES
+HTML_INDEX_NUM_ENTRIES = 100
+
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_MAN           = NO
+
+# Preprocessing
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = NO
+SEARCH_INCLUDES        = YES
+
+# Graphviz configuration
 HAVE_DOT               = YES
-DOT_GRAPH_MAX_NODES    = 50
+CLASS_DIAGRAMS         = YES
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LOOK               = YES
+TEMPLATE_RELATIONS     = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
 CALL_GRAPH             = YES
 CALLER_GRAPH           = YES
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
 DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+DOT_GRAPH_MAX_NODES    = 100
+MAX_DOT_GRAPH_DEPTH    = 0
 
-# Set the output language
+# Warnings and errors
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_AS_ERROR          = NO
+
+# Output language
 OUTPUT_LANGUAGE        = English
 
-# Enable warnings
-WARN_IF_UNDOCUMENTED   = YES
-WARN_NO_PARAMDOC       = YES
+# Other options
+USE_MDFILE_AS_MAINPAGE = @CMAKE_SOURCE_DIR@/README.md
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+MULTILINE_CPP_IS_BRIEF = NO
+MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = YES

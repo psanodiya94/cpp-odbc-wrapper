@@ -1,0 +1,91 @@
+name: Pre-commit Checks
+
+on:
+  push:
+    branches: [ main, develop, claude/** ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  pre-commit:
+    name: Pre-commit Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check file formatting
+      run: |
+        echo "Checking for trailing whitespace..."
+        if grep -r -n --include="*.cpp" --include="*.h" --include="*.hpp" '\s$' src/ include/ 2>/dev/null; then
+          echo "❌ Found trailing whitespace in source files"
+          exit 1
+        else
+          echo "✅ No trailing whitespace found"
+        fi
+
+    - name: Check for TODO/FIXME comments
+      run: |
+        echo "Checking for TODO/FIXME comments..."
+        TODOS=$(grep -r -n --include="*.cpp" --include="*.h" --include="*.hpp" -E 'TODO|FIXME' src/ include/ 2>/dev/null || true)
+        if [ ! -z "$TODOS" ]; then
+          echo "⚠️ Found TODO/FIXME comments:"
+          echo "$TODOS"
+        else
+          echo "✅ No TODO/FIXME comments found"
+        fi
+
+    - name: Check for debug code
+      run: |
+        echo "Checking for debug code..."
+        DEBUG=$(grep -r -n --include="*.cpp" --include="*.h" --include="*.hpp" -E 'std::cout|printf\(|std::cerr' src/ include/ 2>/dev/null || true)
+        if [ ! -z "$DEBUG" ]; then
+          echo "⚠️ Found potential debug code (use OdbcLogger instead):"
+          echo "$DEBUG"
+          # Don't fail the build for this, just warn
+        else
+          echo "✅ No debug code found"
+        fi
+
+    - name: Check CMake files
+      run: |
+        echo "Validating CMakeLists.txt files..."
+        for cmake_file in $(find . -name "CMakeLists.txt"); do
+          if ! grep -q "cmake_minimum_required" "$cmake_file"; then
+            echo "❌ $cmake_file missing cmake_minimum_required"
+            exit 1
+          fi
+        done
+        echo "✅ CMake files validated"
+
+    - name: Check for large files
+      run: |
+        echo "Checking for large files (>1MB)..."
+        LARGE_FILES=$(find . -type f -size +1M -not -path "./build/*" -not -path "./.git/*" -not -path "./doc/*" -not -path "./docs/*" 2>/dev/null || true)
+        if [ ! -z "$LARGE_FILES" ]; then
+          echo "⚠️ Found large files:"
+          echo "$LARGE_FILES"
+        else
+          echo "✅ No large files found"
+        fi
+
+    - name: Check include guards
+      run: |
+        echo "Checking include guards..."
+        for header in $(find include/ -name "*.h" -o -name "*.hpp"); do
+          if ! grep -q "#ifndef" "$header" || ! grep -q "#define" "$header" || ! grep -q "#endif" "$header"; then
+            echo "❌ $header missing proper include guards"
+            exit 1
+          fi
+        done
+        echo "✅ All headers have include guards"
+
+    - name: Check for copyright/license headers
+      run: |
+        echo "Checking for license information..."
+        if [ ! -f "LICENSE" ]; then
+          echo "⚠️ No LICENSE file found"
+        else
+          echo "✅ LICENSE file found"
+        fi

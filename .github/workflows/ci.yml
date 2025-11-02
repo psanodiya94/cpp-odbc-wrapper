@@ -1,0 +1,186 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop, claude/** ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    name: Build and Test - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        exclude:
+          - os: macos-latest
+            compiler: gcc
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          unixodbc \
+          unixodbc-dev \
+          libspdlog-dev \
+          libfmt-dev \
+          libgtest-dev \
+          libgmock-dev \
+          lcov \
+          doxygen \
+          graphviz
+
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install \
+          cmake \
+          unixodbc \
+          spdlog \
+          fmt \
+          googletest \
+          lcov \
+          doxygen \
+          graphviz
+
+    - name: Set up compiler
+      run: |
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          echo "CC=gcc" >> $GITHUB_ENV
+          echo "CXX=g++" >> $GITHUB_ENV
+        elif [ "${{ matrix.compiler }}" = "clang" ]; then
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
+        fi
+
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_COMPILER=${{ env.CXX }} \
+          -DCMAKE_C_COMPILER=${{ env.CC }}
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Debug -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure --verbose
+
+    - name: Generate coverage report (Linux only)
+      if: runner.os == 'Linux' && matrix.compiler == 'gcc'
+      run: |
+        cd build
+        make coverage || true
+
+    - name: Upload coverage to Codecov (Linux only)
+      if: runner.os == 'Linux' && matrix.compiler == 'gcc'
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./build/coverage/coverage_final.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Archive test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}-${{ matrix.compiler }}
+        path: |
+          build/bin/
+          build/coverage/
+        retention-days: 30
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install cppcheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cppcheck
+
+    - name: Run cppcheck
+      run: |
+        cppcheck \
+          --enable=all \
+          --suppress=missingIncludeSystem \
+          --suppress=unusedFunction \
+          --suppress=unmatchedSuppression \
+          --inline-suppr \
+          --error-exitcode=1 \
+          --std=c++17 \
+          -I include/ \
+          src/ \
+          2>&1 | tee cppcheck-report.txt
+
+    - name: Upload cppcheck report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: cppcheck-report
+        path: cppcheck-report.txt
+        retention-days: 30
+
+  documentation:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          doxygen \
+          graphviz
+
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
+
+    - name: Generate documentation
+      run: |
+        cd build
+        make doc
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: docs/doxygen/html/
+        retention-days: 30
+
+    - name: Deploy to GitHub Pages (main branch only)
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/doxygen/html
+        publish_branch: gh-pages
+        force_orphan: true

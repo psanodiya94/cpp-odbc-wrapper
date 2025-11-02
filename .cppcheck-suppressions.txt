@@ -1,0 +1,11 @@
+# cppcheck suppressions file
+# Suppress specific warnings that are intentional or false positives
+
+# Suppress missing include system warnings (we don't need to check system headers)
+missingIncludeSystem
+
+# Suppress unused function warnings (some functions may be part of the public API)
+unusedFunction
+
+# Suppress unmatched suppression warnings
+unmatchedSuppression
