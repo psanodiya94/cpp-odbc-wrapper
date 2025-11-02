@@ -78,6 +78,7 @@ The library uses a layered architecture with dependency injection for maximum fl
 - **`OdbcLogger`**: Logging utility for debugging and diagnostics
 
 This architecture allows you to:
+
 - Swap ODBC implementations without changing application code
 - Mock the interface for unit testing
 - Add custom behavior (logging, metrics, retry logic) by implementing the interface
@@ -100,6 +101,7 @@ Ensure you have the following installed on your system:
 #### Installing Prerequisites
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt-get update
 sudo apt-get install build-essential cmake git unixodbc unixodbc-dev
@@ -107,20 +109,24 @@ sudo apt-get install libspdlog-dev libfmt-dev libgtest-dev lcov
 ```
 
 **Fedora/RHEL:**
+
 ```bash
 sudo dnf install gcc-c++ cmake git unixODBC unixODBC-devel
 sudo dnf install spdlog-devel fmt-devel gtest-devel lcov
 ```
 
 **macOS:**
+
 ```bash
 brew install cmake unixodbc spdlog fmt googletest lcov
 ```
 
 **Windows:**
+
 - Install Visual Studio 2017 or later with C++ development tools
 - Install CMake from [cmake.org](https://cmake.org/)
 - Install vcpkg and use it to install dependencies:
+
   ```powershell
   vcpkg install spdlog fmt gtest
   ```
@@ -140,23 +146,27 @@ The project relies on the following libraries:
 ### Building
 
 1. **Clone the Repository**
+
    ```bash
    git clone https://github.com/psanodiya94/cpp-odbc-wrapper.git
    cd cpp-odbc-wrapper
    ```
 
 2. **Create Build Directory**
+
    ```bash
    mkdir build && cd build
    ```
 
 3. **Configure and Build**
+
    ```bash
    cmake ..
    cmake --build . --config Release
    ```
 
 4. **Install (Optional)**
+
    ```bash
    sudo cmake --install .
    ```
@@ -164,12 +174,14 @@ The project relies on the following libraries:
 ### Running Tests
 
 Run all tests:
+
 ```bash
 cd build
 ctest --output-on-failure
 ```
 
 Run individual test suites:
+
 ```bash
 ./bin/test_odbccpp           # Main wrapper tests
 ./bin/test_odbcexecutor      # Executor tests
@@ -308,12 +320,14 @@ make coverage
 ```
 
 This will:
+
 1. Run all tests
 2. Collect coverage data
 3. Generate HTML report in `build/coverage/html/`
 4. Display coverage summary
 
 View the report:
+
 ```bash
 # Linux/macOS
 xdg-open coverage/html/index.html
