@@ -3,11 +3,14 @@ find_package(GTest REQUIRED)
 
 # GMock may not have a separate find_package in older CMake versions
 # Use GTest to locate GMock if necessary
-find_path(GMOCK_INCLUDE_DIRS gmock/gmock.h)
+find_path(GMOCK_INCLUDE_DIRS gmock/gmock.h PATHS ${GTEST_INCLUDE_DIRS})
 find_library(GMOCK_LIBRARY NAMES gmock libgmock)
 find_library(GMOCK_MAIN_LIBRARY NAMES gmock_main libgmock_main)
 
-# Find SPDLOGspdlog and fmt for logging
+# Find SQLite3 (optional)
+find_package(SQLite3)
+
+# Find spdlog and fmt for logging
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 
@@ -22,12 +25,20 @@ foreach(TEST_TARGET ${TEST_TARGETS})
     # Include directories
     target_include_directories(${TEST_TARGET} PRIVATE
         ${ODBC_INCLUDE_DIRS}
-        ${SQLite3_INCLUDE_DIRS}
         ${GTEST_INCLUDE_DIRS}
-        ${GMOCK_INCLUDE_DIRS}
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/tests/include
     )
+
+    # Add GMock include dirs if found
+    if(GMOCK_INCLUDE_DIRS)
+        target_include_directories(${TEST_TARGET} PRIVATE ${GMOCK_INCLUDE_DIRS})
+    endif()
+
+    # Add SQLite3 include dirs if found
+    if(SQLite3_FOUND)
+        target_include_directories(${TEST_TARGET} PRIVATE ${SQLite3_INCLUDE_DIRS})
+    endif()
 
     # Enable compiler flags for coverage
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -39,14 +50,24 @@ foreach(TEST_TARGET ${TEST_TARGETS})
     target_link_libraries(${TEST_TARGET} PRIVATE
         odbccpp
         ${ODBC_LIBRARIES}
-        ${SQLite3_LIBRARIES}
-        ${GTEST_LIBRARIES}
-        ${GTEST_MAIN_LIBRARIES}
-        ${GMOCK_LIBRARY}
-        ${GMOCK_MAIN_LIBRARY}
+        GTest::GTest
+        GTest::Main
         spdlog::spdlog
         fmt::fmt
     )
+
+    # Link GMock if found
+    if(GMOCK_LIBRARY)
+        target_link_libraries(${TEST_TARGET} PRIVATE ${GMOCK_LIBRARY})
+    endif()
+    if(GMOCK_MAIN_LIBRARY)
+        target_link_libraries(${TEST_TARGET} PRIVATE ${GMOCK_MAIN_LIBRARY})
+    endif()
+
+    # Link SQLite3 if found
+    if(SQLite3_FOUND)
+        target_link_libraries(${TEST_TARGET} PRIVATE SQLite3::SQLite3)
+    endif()
 endforeach()
 
 # Add tests

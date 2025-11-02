@@ -32,6 +32,7 @@ jobs:
           cmake \
           unixodbc \
           unixodbc-dev \
+          libsqlite3-dev \
           libspdlog-dev \
           libfmt-dev \
           libgtest-dev \
@@ -46,6 +47,7 @@ jobs:
         brew install \
           cmake \
           unixodbc \
+          sqlite3 \
           spdlog \
           fmt \
           googletest \
@@ -155,6 +157,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y \
           cmake \
+          unixodbc \
+          unixodbc-dev \
+          libsqlite3-dev \
+          libspdlog-dev \
+          libfmt-dev \
           doxygen \
           graphviz
 
@@ -162,7 +169,7 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake ..
+        cmake .. -DBUILD_TESTING=OFF || cmake .. -DBUILD_TESTING=OFF -DCMAKE_DISABLE_FIND_PACKAGE_GTest=ON
 
     - name: Generate documentation
       run: |

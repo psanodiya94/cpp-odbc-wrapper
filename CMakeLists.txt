@@ -26,12 +26,17 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} ${CMAKE_BINARY_DIR}/lib)
 endforeach()
 
+# Option to build tests
+option(BUILD_TESTING "Build the testing tree" ON)
+
 # Add subdirectories
 add_subdirectory(src)
-add_subdirectory(tests/src)
 
-# Add Test
-enable_testing()
+if(BUILD_TESTING)
+    add_subdirectory(tests/src)
+    # Add Test
+    enable_testing()
+endif()
 
 # Install the library
 install(TARGETS odbccpp
