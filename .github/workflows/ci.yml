@@ -23,6 +23,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          /tmp/deps
+          ~/deps
+        key: ${{ runner.os }}-deps-${{ hashFiles('.github/workflows/ci.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-deps-
+
     - name: Install system dependencies (Ubuntu)
       if: runner.os == 'Linux'
       run: |
@@ -34,38 +44,43 @@ jobs:
           unixodbc-dev \
           libsqlite3-dev \
           lcov \
-          doxygen \
-          graphviz \
           pkg-config
 
     - name: Install C++ dependencies (Ubuntu)
       if: runner.os == 'Linux'
       run: |
-        # Install fmt
-        cd /tmp
-        git clone --depth 1 --branch 10.1.1 https://github.com/fmtlib/fmt.git
-        cd fmt
-        mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_DOC=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-        sudo cmake --build . --target install
-        sudo ldconfig
+        # Create deps directory
+        mkdir -p /tmp/deps
+        export CMAKE_PREFIX_PATH=/usr/local
 
-        # Install spdlog
-        cd /tmp
-        git clone --depth 1 --branch v1.12.0 https://github.com/gabime/spdlog.git
-        cd spdlog
-        mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DSPDLOG_BUILD_EXAMPLE=OFF -DSPDLOG_BUILD_TESTS=OFF
-        sudo cmake --build . --target install
-        sudo ldconfig
+        # Check if already cached
+        if [ ! -f "/usr/local/lib/libfmt.a" ]; then
+          echo "Building fmt..."
+          cd /tmp/deps
+          git clone --depth 1 --branch 10.1.1 https://github.com/fmtlib/fmt.git
+          cd fmt
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_DOC=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+          sudo cmake --build build --target install
+        fi
 
-        # Install GoogleTest with GMock
-        cd /tmp
-        git clone --depth 1 --branch v1.14.0 https://github.com/google/googletest.git
-        cd googletest
-        mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_GMOCK=ON -DINSTALL_GTEST=ON
-        sudo cmake --build . --target install
+        if [ ! -f "/usr/local/lib/libspdlog.a" ]; then
+          echo "Building spdlog..."
+          cd /tmp/deps
+          git clone --depth 1 --branch v1.12.0 https://github.com/gabime/spdlog.git
+          cd spdlog
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DSPDLOG_BUILD_EXAMPLE=OFF -DSPDLOG_BUILD_TESTS=OFF
+          sudo cmake --build build --target install
+        fi
+
+        if [ ! -f "/usr/local/lib/libgtest.a" ]; then
+          echo "Building GoogleTest..."
+          cd /tmp/deps
+          git clone --depth 1 --branch v1.14.0 https://github.com/google/googletest.git
+          cd googletest
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_GMOCK=ON -DINSTALL_GTEST=ON
+          sudo cmake --build build --target install
+        fi
+
         sudo ldconfig
 
     - name: Install dependencies (macOS)
@@ -78,9 +93,7 @@ jobs:
           spdlog \
           fmt \
           googletest \
-          lcov \
-          doxygen \
-          graphviz
+          lcov
 
     - name: Set up compiler
       run: |
@@ -94,17 +107,14 @@ jobs:
 
     - name: Configure CMake
       run: |
-        mkdir -p build
-        cd build
-        cmake .. \
+        cmake -B build \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_CXX_COMPILER=${{ env.CXX }} \
           -DCMAKE_C_COMPILER=${{ env.CC }}
 
     - name: Build
       run: |
-        cd build
-        cmake --build . --config Debug -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 2)
+        cmake --build build --config Debug -j2
 
     - name: Run tests
       run: |
@@ -125,6 +135,7 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Archive test results
       if: always()
@@ -164,7 +175,7 @@ jobs:
           2>&1 | tee cppcheck-report.txt
 
         # Check for actual errors (not warnings)
-        if grep -E "error:" cppcheck-report.txt; then
+        if grep -E "\[error\]" cppcheck-report.txt; then
           echo "Critical errors found!"
           exit 1
         fi
@@ -196,26 +207,25 @@ jobs:
           doxygen \
           graphviz
 
-        # Install minimal C++ dependencies for library compilation
+    - name: Install minimal C++ dependencies
+      run: |
+        # Install fmt
         cd /tmp
         git clone --depth 1 --branch 10.1.1 https://github.com/fmtlib/fmt.git
         cd fmt
-        mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_DOC=OFF
-        sudo cmake --build . --target install
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DFMT_TEST=OFF -DFMT_DOC=OFF
+        sudo cmake --build build --target install
 
+        # Install spdlog
         cd /tmp
         git clone --depth 1 --branch v1.12.0 https://github.com/gabime/spdlog.git
         cd spdlog
-        mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DSPDLOG_BUILD_EXAMPLE=OFF
-        sudo cmake --build . --target install
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DSPDLOG_BUILD_EXAMPLE=OFF
+        sudo cmake --build build --target install
 
     - name: Configure CMake
       run: |
-        mkdir -p build
-        cd build
-        cmake .. -DBUILD_TESTING=OFF
+        cmake -B build -DBUILD_TESTING=OFF
 
     - name: Generate documentation
       run: |
