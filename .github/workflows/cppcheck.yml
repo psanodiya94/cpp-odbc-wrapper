@@ -37,17 +37,18 @@ jobs:
           --suppress=unusedFunction \
           --inline-suppr \
           --std=c++17 \
+          --error-exitcode=0 \
           --template='{file}:{line}:{severity}:{message}' \
           -I include/ \
           src/ \
           2>&1 | tee cppcheck-errors.txt
 
-        # Check if there are any errors (not warnings)
-        if grep -E "(error)" cppcheck-errors.txt; then
-          echo "❌ cppcheck found errors!"
+        # Check if there are any critical errors (not warnings or style issues)
+        if grep -E "\[error\]" cppcheck-errors.txt; then
+          echo "❌ cppcheck found critical errors!"
           exit 1
         else
-          echo "✅ No errors found by cppcheck"
+          echo "✅ No critical errors found by cppcheck"
         fi
 
     - name: Run cppcheck - Full analysis

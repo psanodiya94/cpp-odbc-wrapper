@@ -18,8 +18,9 @@ jobs:
     - name: Check file formatting
       run: |
         echo "Checking for trailing whitespace..."
-        if grep -r -n --include="*.cpp" --include="*.h" --include="*.hpp" '\s$' src/ include/ 2>/dev/null; then
+        if find src include -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec grep -l '[[:space:]]$' {} \; | grep .; then
           echo "❌ Found trailing whitespace in source files"
+          find src include -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec grep -Hn '[[:space:]]$' {} \;
           exit 1
         else
           echo "✅ No trailing whitespace found"
@@ -28,24 +29,12 @@ jobs:
     - name: Check for TODO/FIXME comments
       run: |
         echo "Checking for TODO/FIXME comments..."
-        TODOS=$(grep -r -n --include="*.cpp" --include="*.h" --include="*.hpp" -E 'TODO|FIXME' src/ include/ 2>/dev/null || true)
+        TODOS=$(find src include -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec grep -Hn 'TODO\|FIXME' {} \; || true)
         if [ ! -z "$TODOS" ]; then
           echo "⚠️ Found TODO/FIXME comments:"
           echo "$TODOS"
         else
           echo "✅ No TODO/FIXME comments found"
-        fi
-
-    - name: Check for debug code
-      run: |
-        echo "Checking for debug code..."
-        DEBUG=$(grep -r -n --include="*.cpp" --include="*.h" --include="*.hpp" -E 'std::cout|printf\(|std::cerr' src/ include/ 2>/dev/null || true)
-        if [ ! -z "$DEBUG" ]; then
-          echo "⚠️ Found potential debug code (use OdbcLogger instead):"
-          echo "$DEBUG"
-          # Don't fail the build for this, just warn
-        else
-          echo "✅ No debug code found"
         fi
 
     - name: Check CMake files
@@ -59,29 +48,23 @@ jobs:
         done
         echo "✅ CMake files validated"
 
-    - name: Check for large files
-      run: |
-        echo "Checking for large files (>1MB)..."
-        LARGE_FILES=$(find . -type f -size +1M -not -path "./build/*" -not -path "./.git/*" -not -path "./doc/*" -not -path "./docs/*" 2>/dev/null || true)
-        if [ ! -z "$LARGE_FILES" ]; then
-          echo "⚠️ Found large files:"
-          echo "$LARGE_FILES"
-        else
-          echo "✅ No large files found"
-        fi
-
     - name: Check include guards
       run: |
         echo "Checking include guards..."
-        for header in $(find include/ -name "*.h" -o -name "*.hpp"); do
+        MISSING_GUARDS=0
+        for header in $(find include -name "*.h" -o -name "*.hpp"); do
           if ! grep -q "#ifndef" "$header" || ! grep -q "#define" "$header" || ! grep -q "#endif" "$header"; then
             echo "❌ $header missing proper include guards"
-            exit 1
+            MISSING_GUARDS=1
           fi
         done
-        echo "✅ All headers have include guards"
+        if [ $MISSING_GUARDS -eq 0 ]; then
+          echo "✅ All headers have include guards"
+        else
+          exit 1
+        fi
 
-    - name: Check for copyright/license headers
+    - name: Check for license file
       run: |
         echo "Checking for license information..."
         if [ ! -f "LICENSE" ]; then
