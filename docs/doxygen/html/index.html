@@ -149,7 +149,8 @@ Key Components</h2>
 <li>**<code>OdbcWrapper</code>**: High-level wrapper providing convenient database operations</li>
 <li>**<code>OdbcLogger</code>**: Logging utility for debugging and diagnostics</li>
 </ul>
-<p>This architecture allows you to:</p><ul>
+<p>This architecture allows you to:</p>
+<ul>
 <li>Swap ODBC implementations without changing application code</li>
 <li>Mock the interface for unit testing</li>
 <li>Add custom behavior (logging, metrics, retry logic) by implementing the interface</li>
@@ -173,16 +174,21 @@ Prerequisites</h2>
 </ul>
 <h3><a class="anchor" id="autotoc_md7"></a>
 Installing Prerequisites</h3>
-<p><b>Ubuntu/Debian:</b> </p><div class="fragment"><div class="line">sudo apt-get update</div>
+<p><b>Ubuntu/Debian:</b></p>
+<div class="fragment"><div class="line">sudo apt-get update</div>
 <div class="line">sudo apt-get install build-essential cmake git unixodbc unixodbc-dev</div>
 <div class="line">sudo apt-get install libspdlog-dev libfmt-dev libgtest-dev lcov</div>
-</div><!-- fragment --><p><b>Fedora/RHEL:</b> </p><div class="fragment"><div class="line">sudo dnf install gcc-c++ cmake git unixODBC unixODBC-devel</div>
+</div><!-- fragment --><p><b>Fedora/RHEL:</b></p>
+<div class="fragment"><div class="line">sudo dnf install gcc-c++ cmake git unixODBC unixODBC-devel</div>
 <div class="line">sudo dnf install spdlog-devel fmt-devel gtest-devel lcov</div>
-</div><!-- fragment --><p><b>macOS:</b> </p><div class="fragment"><div class="line">brew install cmake unixodbc spdlog fmt googletest lcov</div>
-</div><!-- fragment --><p><b>Windows:</b></p><ul>
+</div><!-- fragment --><p><b>macOS:</b></p>
+<div class="fragment"><div class="line">brew install cmake unixodbc spdlog fmt googletest lcov</div>
+</div><!-- fragment --><p><b>Windows:</b></p>
+<ul>
 <li>Install Visual Studio 2017 or later with C++ development tools</li>
 <li>Install CMake from <a href="https://cmake.org/">cmake.org</a></li>
-<li>Install vcpkg and use it to install dependencies: <div class="fragment"><div class="line">vcpkg install spdlog fmt gtest</div>
+<li><p class="startli">Install vcpkg and use it to install dependencies:</p>
+<div class="fragment"><div class="line">vcpkg install spdlog fmt gtest</div>
 </div><!-- fragment --></li>
 </ul>
 <h2><a class="anchor" id="autotoc_md8"></a>
@@ -205,22 +211,28 @@ Dependencies</h2>
 <h2><a class="anchor" id="autotoc_md9"></a>
 Building</h2>
 <ol type="1">
-<li><b>Clone the Repository</b> <div class="fragment"><div class="line">git clone https://github.com/psanodiya94/cpp-odbc-wrapper.git</div>
+<li><p class="startli"><b>Clone the Repository</b></p>
+<div class="fragment"><div class="line">git clone https://github.com/psanodiya94/cpp-odbc-wrapper.git</div>
 <div class="line">cd cpp-odbc-wrapper</div>
 </div><!-- fragment --></li>
-<li><b>Create Build Directory</b> <div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
+<li><p class="startli"><b>Create Build Directory</b></p>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div>
 </div><!-- fragment --></li>
-<li><b>Configure and Build</b> <div class="fragment"><div class="line">cmake ..</div>
+<li><p class="startli"><b>Configure and Build</b></p>
+<div class="fragment"><div class="line">cmake ..</div>
 <div class="line">cmake --build . --config Release</div>
 </div><!-- fragment --></li>
-<li><b>Install (Optional)</b> <div class="fragment"><div class="line">sudo cmake --install .</div>
+<li><p class="startli"><b>Install (Optional)</b></p>
+<div class="fragment"><div class="line">sudo cmake --install .</div>
 </div><!-- fragment --></li>
 </ol>
 <h2><a class="anchor" id="autotoc_md10"></a>
 Running Tests</h2>
-<p>Run all tests: </p><div class="fragment"><div class="line">cd build</div>
+<p>Run all tests:</p>
+<div class="fragment"><div class="line">cd build</div>
 <div class="line">ctest --output-on-failure</div>
-</div><!-- fragment --><p>Run individual test suites: </p><div class="fragment"><div class="line">./bin/test_odbccpp           # Main wrapper tests</div>
+</div><!-- fragment --><p>Run individual test suites:</p>
+<div class="fragment"><div class="line">./bin/test_odbccpp           # Main wrapper tests</div>
 <div class="line">./bin/test_odbcexecutor      # Executor tests</div>
 <div class="line">./bin/test_additional_coverage  # Additional coverage tests</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md11"></a>
@@ -349,13 +361,15 @@ Code Coverage</h1>
 <p>Generate code coverage reports:</p>
 <div class="fragment"><div class="line">cd build</div>
 <div class="line">make coverage</div>
-</div><!-- fragment --><p>This will:</p><ol type="1">
+</div><!-- fragment --><p>This will:</p>
+<ol type="1">
 <li>Run all tests</li>
 <li>Collect coverage data</li>
 <li>Generate HTML report in <code>build/coverage/html/</code></li>
 <li>Display coverage summary</li>
 </ol>
-<p>View the report: </p><div class="fragment"><div class="line"># Linux/macOS</div>
+<p>View the report:</p>
+<div class="fragment"><div class="line"># Linux/macOS</div>
 <div class="line">xdg-open coverage/html/index.html</div>
 <div class="line"> </div>
 <div class="line"># macOS</div>
@@ -464,7 +478,7 @@ Roadmap</h1>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Nov 3 2025 01:16:21 for C++ ODBC Wrapper by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8
+Generated on Mon Nov 3 2025 01:19:04 for C++ ODBC Wrapper by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8
 </small></address>
 </body>
 </html>
