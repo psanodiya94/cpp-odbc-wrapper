@@ -2,7 +2,7 @@
 find_package(ODBC REQUIRED)
 
 # Find SQLite3 (optional, for creating test database)
-find_package(SQLite3 REQUIRED)
+find_package(SQLite3)
 
 # Find spdlog and fmt for logging
 find_package(spdlog REQUIRED)
@@ -27,5 +27,10 @@ target_include_directories(odbccpp PUBLIC
 )
 
 # Link required libraries
-target_link_libraries(odbccpp PRIVATE ${ODBC_LIBRARIES} ${SQLite3_LIBRARIES})
+target_link_libraries(odbccpp PRIVATE ${ODBC_LIBRARIES})
 target_link_libraries(odbccpp PRIVATE spdlog::spdlog fmt::fmt)
+
+# Link SQLite3 if found
+if(SQLite3_FOUND)
+    target_link_libraries(odbccpp PRIVATE SQLite3::SQLite3)
+endif()
