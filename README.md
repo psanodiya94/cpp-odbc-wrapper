@@ -1,6 +1,5 @@
 # C++ ODBC Wrapper
 
-[![Build Status](https://github.com/psanodiya94/cpp-odbc-wrapper/workflows/CI/badge.svg)](https://github.com/psanodiya94/cpp-odbc-wrapper/actions)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/psanodiya94/cpp-odbc-wrapper)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
@@ -22,7 +21,6 @@ A flexible, extensible, and type-safe C++ wrapper for ODBC (Open Database Connec
 - [Testing](#testing)
 - [Code Coverage](#code-coverage)
 - [Documentation](#documentation)
-- [CI/CD Pipeline](#cicd-pipeline)
 - [Static Analysis](#static-analysis)
 - [Contributing](#contributing)
 - [License](#license)
@@ -33,11 +31,11 @@ A flexible, extensible, and type-safe C++ wrapper for ODBC (Open Database Connec
 - **🧪 100% Test Coverage**: Comprehensive unit tests with Google Test and Google Mock
 - **📝 Well-Documented**: Extensive inline documentation and generated Doxygen docs
 - **🚀 Modern C++**: Uses C++17 features for type safety and performance
-- **🔍 Static Analysis**: Integrated cppcheck for code quality
+- **🔍 Static Analysis**: cppcheck integration for code quality
 - **⚡ Lightweight**: Minimal overhead over raw ODBC calls
 - **🛡️ Type-Safe**: Strong typing for better compile-time error detection
-- **🔄 CI/CD Ready**: GitHub Actions workflows for automated testing and deployment
 - **📊 Logging**: Built-in logging with spdlog for debugging and diagnostics
+- **🛠️ Developer Tools**: Helper scripts for testing, coverage, and static analysis
 
 ## Architecture
 
@@ -362,30 +360,6 @@ start ..\docs\doxygen\html\index.html
 - **Call Graphs**: Function call relationships
 - **Source Browser**: Browse annotated source code
 
-## CI/CD Pipeline
-
-The project uses GitHub Actions for continuous integration and deployment:
-
-### Workflows
-
-- **Build and Test**: Runs on every push and pull request
-  - Builds on Ubuntu, Windows, and macOS
-  - Runs all unit tests
-  - Generates coverage reports
-
-- **Static Analysis**: Runs cppcheck on every push
-  - Checks for potential bugs
-  - Enforces coding standards
-  - Reports warnings and errors
-
-- **Documentation**: Automatically builds and deploys documentation
-  - Generates Doxygen docs
-  - Publishes to GitHub Pages
-
-### Build Status
-
-Check the [Actions tab](https://github.com/psanodiya94/cpp-odbc-wrapper/actions) for build status and logs.
-
 ## Static Analysis
 
 The project integrates multiple static analysis tools:
@@ -405,12 +379,6 @@ cppcheck --enable=all --suppress=missingIncludeSystem \
 ```bash
 clang-tidy src/*.cpp -- -I include/ -std=c++17
 ```
-
-### Integration in CI
-
-Static analysis runs automatically on every commit. The build fails if:
-- Critical errors are found
-- Code quality thresholds are not met
 
 ## Contributing
 
