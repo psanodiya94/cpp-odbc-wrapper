@@ -15,12 +15,12 @@ namespace ps {
         protected:
             void SetUp() override {
                 executor = std::make_unique<odbc::OdbcExecutor>();
-                OdbcLogger::logInfo("Setting up OdbcExecutorTest");
+                odbc::OdbcLogger::logInfo("Setting up OdbcExecutorTest");
             }
 
             void TearDown() override {
                 executor.reset();
-                OdbcLogger::logInfo("Tearing down OdbcExecutorTest");
+                odbc::OdbcLogger::logInfo("Tearing down OdbcExecutorTest");
             }
 
             std::unique_ptr<odbc::OdbcExecutor> executor;
@@ -184,7 +184,7 @@ namespace ps {
 }
 
 int main(int argc, char **argv) {
-    OdbcLogger::initialize("logs/odbc_executor_test.log");
+    ps::odbc::OdbcLogger::initialize("logs/odbc_executor_test.log");
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

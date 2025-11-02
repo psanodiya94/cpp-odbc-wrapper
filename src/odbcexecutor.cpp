@@ -15,7 +15,7 @@ namespace ps {
 
         SQLRETURN OdbcExecutor::SQLConnect(SQLHDBC ConnectionHandle, SQLWCHAR* ServerName, SQLSMALLINT NameLength1,
                             SQLWCHAR* UserName, SQLSMALLINT NameLength2, SQLWCHAR* Authentication, SQLSMALLINT NameLength3) {
-            return ::SQLConnect(ConnectionHandle, ServerName, NameLength1, UserName, NameLength2, Authentication, NameLength3);
+            return ::SQLConnectW(ConnectionHandle, ServerName, NameLength1, UserName, NameLength2, Authentication, NameLength3);
         }
 
         SQLRETURN OdbcExecutor::SQLDisconnect(SQLHDBC ConnectionHandle) {
@@ -27,7 +27,7 @@ namespace ps {
         }
 
         SQLRETURN OdbcExecutor::SQLExecDirect(SQLHSTMT StatementHandle, SQLWCHAR* StatementText, SQLINTEGER TextLength) {
-            return ::SQLExecDirect(StatementHandle, StatementText, TextLength);
+            return ::SQLExecDirectW(StatementHandle, StatementText, TextLength);
         }
 
         SQLRETURN OdbcExecutor::SQLNumResultCols(SQLHSTMT StatementHandle, SQLSMALLINT* ColumnCount) {
@@ -50,7 +50,7 @@ namespace ps {
         SQLRETURN OdbcExecutor::SQLGetDiagRec(SQLSMALLINT HandleType, SQLHANDLE Handle, SQLSMALLINT RecNumber,
                             SQLWCHAR* SQLState, SQLINTEGER* NativeError, SQLWCHAR* MessageText,
                             SQLSMALLINT BufferLength, SQLSMALLINT* TextLength) {
-            return ::SQLGetDiagRec(HandleType, Handle, RecNumber, SQLState, NativeError, MessageText, BufferLength, TextLength);
+            return ::SQLGetDiagRecW(HandleType, Handle, RecNumber, SQLState, NativeError, MessageText, BufferLength, TextLength);
         }
     }
 }

@@ -9,6 +9,13 @@ find_library(GMOCK_MAIN_LIBRARY NAMES gmock_main libgmock_main)
 
 # Find SQLite3 (optional)
 find_package(SQLite3)
+# Create SQLite3::SQLite3 target if it doesn't exist but variables are available
+if(SQLite3_FOUND AND NOT TARGET SQLite3::SQLite3)
+    add_library(SQLite3::SQLite3 UNKNOWN IMPORTED)
+    set_target_properties(SQLite3::SQLite3 PROPERTIES
+        IMPORTED_LOCATION "${SQLite3_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${SQLite3_INCLUDE_DIRS}")
+endif()
 
 # Find spdlog and fmt for logging
 find_package(spdlog REQUIRED)
