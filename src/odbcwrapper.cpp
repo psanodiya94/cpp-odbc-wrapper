@@ -38,25 +38,42 @@ namespace ps {
             SQLWCHAR sqlState[6], msg[SQL_MAX_MESSAGE_LENGTH];
             SQLINTEGER nativeError;
             SQLSMALLINT msgLen;
+            bool errorLogged = false;
 
-            while (m_odbc->SQLGetDiagRec(handleType, handle, 1, sqlState, &nativeError, 
+            while (m_odbc->SQLGetDiagRec(handleType, handle, 1, sqlState, &nativeError,
                                 msg, sizeof(msg) / sizeof(SQLWCHAR), &msgLen) == SQL_SUCCESS) {
+                errorLogged = true;
                 // Convert SQLWCHAR* to std::wstring for logging
                 std::wstring sqlStateStr(reinterpret_cast<wchar_t*>(sqlState));
                 std::wstring msgStr(reinterpret_cast<wchar_t*>(msg));
-                
-                // Convert std::wstring to std::string for spdlog
-                std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-                std::string sqlStateNarrow = converter.to_bytes(sqlStateStr);
-                std::string msgNarrow = converter.to_bytes(msgStr);
 
-                OdbcLogger::logError(fmt::format("SQLSTATE: {}, Message: {}, Native Error: {}", 
+                // Convert std::wstring to std::string for spdlog (with error handling)
+                std::string sqlStateNarrow;
+                std::string msgNarrow;
+                try {
+                    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                    sqlStateNarrow = converter.to_bytes(sqlStateStr);
+                    msgNarrow = converter.to_bytes(msgStr);
+                } catch (const std::exception&) {
+                    // Fallback to simple conversion if UTF-8 conversion fails
+                    sqlStateNarrow = std::string(sqlStateStr.begin(), sqlStateStr.end());
+                    msgNarrow = std::string(msgStr.begin(), msgStr.end());
+                }
+
+                OdbcLogger::logError(fmt::format("SQLSTATE: {}, Message: {}, Native Error: {}",
                                                 sqlStateNarrow, msgNarrow, nativeError));
 
                 if (retCode == SQL_ERROR) {
-                    throw std::runtime_error("ODBC Error: " + std::string(msgStr.begin(), msgStr.end()));
+                    throw std::runtime_error("ODBC Error: " + msgNarrow);
                 }
             }
+
+            // If SQL_ERROR but couldn't get diagnostic info, still throw
+            if (retCode == SQL_ERROR && !errorLogged) {
+                OdbcLogger::logError("ODBC Error occurred but diagnostic information unavailable");
+                throw std::runtime_error("ODBC Error: Unable to retrieve diagnostic information");
+            }
+
             OdbcLogger::logInfo("Exiting handleError");
         }
 
@@ -84,14 +101,20 @@ namespace ps {
             SQLRETURN ret = m_odbc->SQLConnect(m_hDbc, (SQLWCHAR*)dsn.c_str(), SQL_NTS,
                                     (SQLWCHAR*)user.c_str(), SQL_NTS,
                                     (SQLWCHAR*)password.c_str(), SQL_NTS);
-            
+
             if (SQL_SUCCEEDED(ret)) {
                 m_connected = true;
                 m_odbc->SQLAllocHandle(SQL_HANDLE_STMT, m_hDbc, &m_hStmt);
+
+                // Handle SQL_SUCCESS_WITH_INFO to log warnings
+                if (ret == SQL_SUCCESS_WITH_INFO) {
+                    handleError(m_hDbc, SQL_HANDLE_DBC, ret);
+                }
+
                 OdbcLogger::logInfo("Exiting connect with success");
                 return true;
             }
-            
+
             handleError(m_hDbc, SQL_HANDLE_DBC, ret);
             OdbcLogger::logInfo("Exiting connect with failure");
             return false;

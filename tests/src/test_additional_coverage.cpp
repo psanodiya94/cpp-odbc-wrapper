@@ -2,6 +2,8 @@
 #include <odbclogger.h>
 #include <cwchar>
 
+using ps::odbc::OdbcLogger;
+
 namespace ps {
     namespace test {
         /**
@@ -231,7 +233,8 @@ namespace ps {
                         }
                     }
                     return SQL_SUCCESS;
-                });
+                })
+                .WillRepeatedly(testing::Return(SQL_NO_DATA)); // Return SQL_NO_DATA for subsequent calls
 
             bool result = wrapper->connect(L"MyDSN", L"user", L"pass");
             EXPECT_TRUE(result); // Should still succeed

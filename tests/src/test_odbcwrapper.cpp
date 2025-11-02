@@ -68,8 +68,7 @@ namespace ps {
             EXPECT_CALL(*mock, SQLGetDiagRec(SQL_HANDLE_DBC, testing::_, 1, testing::_, testing::_, testing::_, testing::_, testing::_))
                 .WillOnce(testing::Return(SQL_NO_DATA));
 
-            bool result = wrapper->connect(L"MyDSN", L"user", L"pass");
-            EXPECT_FALSE(result);
+            EXPECT_THROW(wrapper->connect(L"MyDSN", L"user", L"pass"), std::runtime_error);
 
             OdbcLogger::logInfo("Exiting Connect_FailureHandlesError");
         }
@@ -138,7 +137,7 @@ namespace ps {
             EXPECT_CALL(*mock, SQLDisconnect(nullptr)) // Handle NULL case
                 .Times(testing::AnyNumber())
                 .WillRepeatedly(testing::Return(SQL_SUCCESS));
-            
+
             wrapper->connect(L"MyDSN", L"user", L"pass"); // Set isConnected to true
 
             EXPECT_CALL(*mock, SQLExecDirect(testing::_, testing::_, SQL_NTS))
@@ -146,8 +145,7 @@ namespace ps {
             EXPECT_CALL(*mock, SQLGetDiagRec(SQL_HANDLE_STMT, testing::_, 1, testing::_, testing::_, testing::_, testing::_, testing::_))
                 .WillOnce(testing::Return(SQL_NO_DATA));
 
-            bool result = wrapper->executeQuery(L"SELECT * FROM table");
-            EXPECT_FALSE(result);
+            EXPECT_THROW(wrapper->executeQuery(L"SELECT * FROM table"), std::runtime_error);
 
             OdbcLogger::logInfo("Exiting ExecuteQuery_FailureHandlesError");
         }
